@@ -1,0 +1,11 @@
+# Core studio (voice, word timing, captions, footage tools, images). Tested on Python 3.12/3.13.
+faster-whisper==1.2.1
+ctranslate2==4.8.4
+# av 19 removed open(metadata_errors=...), which faster-whisper 1.2.1 still passes
+av==18.1.0
+kokoro-onnx==0.6.1
+onnxruntime==1.31.0
+soundfile==0.14.0
+numpy==2.5.4
+pillow==13.0.0
+yt-dlp[default]==2026.10.21

@@ -1,0 +1,14 @@
+{
+  "name": "video-suite",
+  "description": "AI video studio for Claude Code: research, script, voiceover, paper-cutout animation, footage editing and rendering for short vertical videos.",
+  "owner": { "name": "hamzafayaz002" },
+  "plugins": [
+    {
+      "name": "video-studio",
+      "source": "./plugins/video-studio",
+      "description": "Type a topic (plus any reference video or images) and get a finished 1080x1920 Reel. One-time /studio-setup installs everything.",
+      "category": "media",
+      "tags": ["video", "reels", "animation", "ffmpeg", "tts"]
+    }
+  ]
+}

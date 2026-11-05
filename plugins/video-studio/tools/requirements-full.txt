@@ -1,0 +1,7 @@
+# Optional AI generation: image cutouts (SD-Turbo + rembg) and music (MusicGen). torch is installed first by setup.sh.
+transformers==5.20.2
+diffusers==0.42.0
+accelerate==1.15.0
+safetensors==0.8.0
+rembg==2.0.86
+scipy==1.18.1

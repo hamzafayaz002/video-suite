@@ -1,0 +1,3 @@
+{
+ "_comment": "name: prompt for `vs cutout gen assets.json assets/cut`. People: 'papercraft cardboard toy figure of ..., blocky low poly paper character, full body'. Objects: plain description. Food, fences, tables, phones and machines often fail: draw them with PIL + tear() instead."
+}

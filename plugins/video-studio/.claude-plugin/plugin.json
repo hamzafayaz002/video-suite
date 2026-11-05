@@ -1,0 +1,9 @@
+{
+  "name": "video-studio",
+  "version": "0.1.0",
+  "description": "All-in-one AI video studio: research, story, voiceover, captions, paper-cutout animation, footage cleanup, music and rendering for Instagram Reels and other short vertical video.",
+  "author": { "name": "hamzafayaz002" },
+  "repository": "https://github.com/hamzafayaz002/video-suite",
+  "license": "MIT",
+  "keywords": ["video", "reels", "tiktok", "shorts", "animation", "ffmpeg", "voiceover", "captions"]
+}

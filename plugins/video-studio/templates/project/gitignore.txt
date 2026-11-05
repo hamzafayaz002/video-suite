@@ -1,0 +1,7 @@
+renders/
+.hyperframes/
+*.mp4
+assets/vo/
+assets/sfx/
+assets/tex/
+assets/vendor/

@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+# vs: the video-studio command line. Lives in the plugin's bin/, which Claude Code puts on PATH.
+#   vs setup [--full]        install everything (ffmpeg, node, python libs, models, renderer)
+#   vs doctor                show what is installed and what is missing
+#   vs new NAME [--dir D]    start a video project folder
+#   vs voice PROJECT         record script.txt and write voice.wav + timing.json
+#   vs build PROJECT         run PROJECT/build.py (writes the HyperFrames compositions)
+#   vs check|snapshot|render PROJECT [args]   HyperFrames, with the studio's browser
+#   vs <tool> [args]         any vedit tool: analyze transcribe download ffmpeg mix cutout
+#                            sfx textures footage music qa
+set -euo pipefail
+PLUGIN_ROOT="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)"
+export VS_HOME="${VS_HOME:-$HOME/.video-studio}"
+export PATH="$VS_HOME/bin:$VS_HOME/node/bin:$PATH"
+export PYTHONPATH="$PLUGIN_ROOT/tools${PYTHONPATH:+:$PYTHONPATH}"
+export HF_HOME="${HF_HOME:-$VS_HOME/models/hf}" U2NET_HOME="${U2NET_HOME:-$VS_HOME/models/rembg}"
+HF="hyperframes@0.8.200"
+PY="$VS_HOME/venv/bin/python"
+
+need_venv() {
+  if [ ! -x "$PY" ]; then
+    echo "video-studio is not set up yet. Run: vs setup" >&2
+    exit 3
+  fi
+}
+
+browser_env() {
+  if [ -z "${PUPPETEER_EXECUTABLE_PATH:-}" ] && [ -f "$VS_HOME/chrome-path" ]; then
+    export PUPPETEER_EXECUTABLE_PATH="$(cat "$VS_HOME/chrome-path")"
+  fi
+}
+
+cmd="${1:-help}"; shift || true
+case "$cmd" in
+  help|-h|--help) sed -n '2,10p' "$0" | sed 's/^# \{0,1\}//' ;;
+  setup) exec bash "$PLUGIN_ROOT/skills/studio-setup/scripts/setup.sh" "$@" ;;
+  doctor)
+    if [ -x "$PY" ]; then exec "$PY" -m vedit.doctor "$@"; else exec python3 -m vedit.doctor "$@"; fi ;;
+  build)
+    need_venv
+    dir="${1:?usage: vs build PROJECT}"; shift
+    exec "$PY" "$dir/build.py" "$@" ;;
+  check|snapshot|render)
+    browser_env
+    dir="${1:?usage: vs $cmd PROJECT [args]}"; shift
+    cd "$dir" && exec npx --yes "$HF" "$cmd" "$@" </dev/null ;;
+  hf)
+    browser_env
+    exec npx --yes "$HF" "$@" </dev/null ;;
+  new|voice|analyze|transcribe|download|ffmpeg|mix|cutout|sfx|textures|footage|music|qa|project)
+    need_venv
+    mod="$cmd"; [ "$cmd" = new ] && mod=project
+    exec "$PY" -m "vedit.$mod" "$@" ;;
+  *) echo "unknown command: $cmd (try: vs help)" >&2; exit 2 ;;
+esac

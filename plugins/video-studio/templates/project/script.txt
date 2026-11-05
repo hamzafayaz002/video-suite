@@ -1,0 +1,10 @@
+# One phrase per line:  scene|speed|pause_after|text
+# scene: lowercase id, all lines of a scene together, in story order. Each scene id needs a builder in build.py.
+# speed: 1.0 normal, 0.9 for a punchline, 1.1 for lists. pause_after: 0.15 between items, 0.5+ before a reveal.
+# Pacing: about 2.6 spoken words per second. 30-40 s total for an ad, 45-60 s for an explainer.
+hook|1.0|0.3|This is a paper sun.
+hook|1.05|0.5|It took zero artists to make.
+idea|1.05|0.2|Every scene here is built from code,
+idea|1.0|0.5|timed to the exact word you hear.
+cta|1.0|0.3|Now make your own.
+cta|0.95|0.6|Just type a topic.
