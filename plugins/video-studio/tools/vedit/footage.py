@@ -103,7 +103,7 @@ def subtract(span: list[float], bad: list[list[float]]) -> list[list[float]]:
 
 
 def false_starts(words: list[dict]) -> list[list[float]]:
-    """Sentences restarted with the same first 3 words: drop the earlier attempt."""
+    """A sentence restarted with the same opening words (fillers ignored): drop the earlier attempt."""
     sents, cur = [], []
     for w in words:
         cur.append(w)
@@ -111,8 +111,14 @@ def false_starts(words: list[dict]) -> list[list[float]]:
             sents.append(cur); cur = []
     if cur:
         sents.append(cur)
-    key = lambda s: [re.sub(r"\W", "", w["text"].lower()) for w in s[:3]]
-    return [[a[0]["start"], b[0]["start"]] for a, b in zip(sents, sents[1:]) if len(a) >= 3 and key(a) == key(b)]
+    norm = lambda s: [t for t in (re.sub(r"\W", "", w["text"].lower()) for w in s) if t and t not in FILLERS]
+    out = []
+    for a, b in zip(sents, sents[1:]):
+        ka, kb = norm(a), norm(b)
+        n = min(3, len(ka))
+        if n >= 2 and kb[:n] == ka[:n]:
+            out.append([a[0]["start"], b[0]["start"]])
+    return out
 
 
 def plan(scans: list[dict], words: dict, keep_silence: float, fillers: bool) -> dict:
@@ -182,8 +188,11 @@ def captions(src: Path, dst: Path, per: int) -> None:
     lines = []
     for g in range(0, len(words), per):
         grp = words[g:g + per]
+        nxt = words[g + per]["start"] if g + per < len(words) else None
         for k, w in enumerate(grp):  # the spoken word turns yellow
             end = grp[k + 1]["start"] if k + 1 < len(grp) else w["end"] + 0.25
+            if nxt is not None:
+                end = min(end, nxt)
             txt = " ".join((r"{\c&H0019C4F2&}" + x["text"].upper() + r"{\c&H00FFFFFF&}") if j == k else x["text"].upper()
                            for j, x in enumerate(grp))
             lines.append(f"Dialogue: 0,{ass_time(w['start'])},{ass_time(end)},Cap,,0,0,0,,{txt}")

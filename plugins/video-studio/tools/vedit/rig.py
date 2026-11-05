@@ -112,16 +112,24 @@ def torn_strip(id_: str, tex: str, x: int, y: int, w: int, h: int, seed: int, z:
 
 # ---------------------------------------------------------------- motion helpers (GSAP strings)
 
+def _t(t: float) -> float:
+    """Entrances never start before 0.05 s: a negative start would run before hide() and leave the element invisible."""
+    return round(max(0.05, t), 3)
+
+
 def pop(sel: str, t: float, dur: float = 0.5, origin: str = "50% 100%") -> str:
+    t = _t(t)
     return (f'tl.fromTo("{sel}", {{ scale: 0, opacity: 1, transformOrigin: "{origin}" }}, '
             f'{{ scale: 1, duration: {dur}, ease: "back.out(1.7)" }}, {t});\n')
 
 
 def rise(sel: str, t: float, dy: int = 500, dur: float = 0.7) -> str:
+    t = _t(t)
     return f'tl.fromTo("{sel}", {{ y: {dy}, opacity: 1 }}, {{ y: 0, duration: {dur}, ease: "power3.out" }}, {t});\n'
 
 
 def slide(sel: str, t: float, dx: int, dur: float = 0.7, ease: str = "power3.out") -> str:
+    t = _t(t)
     return f'tl.fromTo("{sel}", {{ x: {dx}, opacity: 1 }}, {{ x: 0, duration: {dur}, ease: "{ease}" }}, {t});\n'
 
 
@@ -130,30 +138,36 @@ def hide(sel: str) -> str:
 
 
 def type_in(sel: str, t: float, per: float = 0.04) -> str:
+    t = _t(t)
     return (f'tl.fromTo("{sel}", {{ opacity: 0 }}, {{ opacity: 1, duration: 0.01 }}, {t});\n'
             f'tl.fromTo("{sel} .ch", {{ opacity: 0 }}, {{ opacity: 1, duration: 0.01, stagger: {per} }}, {t});\n')
 
 
 def slam(sel: str, t: float, scale: float = 2.2) -> str:
+    t = _t(t)
     return (f'tl.fromTo("{sel}", {{ opacity: 0, scale: {scale} }}, {{ opacity: 1, scale: 1, duration: 0.16, ease: "power4.in" }}, {t});\n'
             f'tl.to("{sel}", {{ keyframes: [{{ x: -7 }}, {{ x: 6 }}, {{ x: -3 }}, {{ x: 0 }}], duration: 0.12 }}, {round(t + 0.16, 3)});\n')
 
 
 def wipe(sel: str, t: float, dur: float = 0.8, ease: str = "power1.inOut") -> str:
+    t = _t(t)
     return f'tl.fromTo("{sel}", {{ clipPath: "inset(0 100% 0 0)" }}, {{ clipPath: "inset(0 0% 0 0)", duration: {dur}, ease: "{ease}" }}, {t});\n'
 
 
 def shake(sel: str, t: float, amp: int = 12) -> str:
+    t = _t(t)
     return (f'tl.to("{sel}", {{ keyframes: [{{ x: -{amp}, y: {amp // 2} }}, {{ x: {amp}, y: -{amp // 2} }}, {{ x: -{amp // 2}, y: {amp // 3} }}, '
             f'{{ x: 0, y: 0 }}], duration: 0.28 }}, {t});\n')
 
 
 def bob(sel: str, t: float, n: int = 6, amp: int = 12, dur: float = 1.4) -> str:
+    t = _t(t)
     frames = ", ".join(f"{{ y: {-amp if k % 2 == 0 else 0} }}" for k in range(n * 2))
     return f'tl.to("{sel}", {{ keyframes: [{frames}], duration: {dur}, ease: "none" }}, {t});\n'
 
 
 def count(sel: str, t: float, a: float, b: float, dur: float, var: str) -> str:
+    t = _t(t)
     return (f'const {var} = {{ v: {a} }};\n'
             f'tl.fromTo({var}, {{ v: {a} }}, {{ v: {b}, duration: {dur}, ease: "power2.out", '
             f'onUpdate: () => {{ document.querySelector("{sel}").textContent = Math.round({var}.v); }} }}, {t});\n')
@@ -248,6 +262,7 @@ def steam(p: str, xs: list, y: int) -> str:
 
 
 def steam_js(p: str, n: int, t: float, dur: float = 2.6) -> str:
+    t = _t(t)
     return "".join(f'tl.fromTo("#{p}-sm{i}", {{ y: 40, opacity: 0 }}, {{ keyframes: [{{ y: 0, opacity: .9 }}, {{ y: -150, opacity: 0 }}], duration: {dur}, ease: "none" }}, {round(t + i * 0.3, 3)});\n'
                    for i in range(n))
 
@@ -280,6 +295,7 @@ def flames(p: str, xs: list, y: int, size: int = 120) -> str:
 
 
 def flames_js(p: str, n: int, t: float, scale: float = 1.0, dur: float = 1.2) -> str:
+    t = _t(t)
     return "".join(f'tl.fromTo("#{p}-fl{i}", {{ scale: 0, opacity: 1, transformOrigin: "50% 100%" }}, '
                    f'{{ keyframes: [{{ scale: {scale}, duration: 0.25 }}, {{ scale: {scale * 0.75}, duration: 0.2 }}, {{ scale: {scale * 1.1}, duration: 0.2 }}, '
                    f'{{ scale: {scale * 0.85}, duration: {dur - 0.65} }}] }}, {round(t + i * 0.06, 3)});\n' for i in range(n))
@@ -291,6 +307,7 @@ def smoke(p: str, spots: list) -> str:
 
 
 def smoke_js(p: str, n: int, t: float, step: float = 0.18) -> str:
+    t = _t(t)
     return "".join(f'tl.fromTo("#{p}-sk{i}", {{ scale: 0.2, y: 260, opacity: 0, transformOrigin: "50% 100%" }}, '
                    f'{{ scale: 1, y: 0, opacity: 0.95, duration: 1.1, ease: "power2.out" }}, {round(t + i * step, 3)});\n' for i in range(n))
 
@@ -302,6 +319,7 @@ def ring(p: str, n: int, cx: int, cy: int, r: int, color: str | None = None) -> 
 
 
 def ring_js(p: str, n: int, t: float, every: float = 0.35, reps: int = 2) -> str:
+    t = _t(t)
     out = ""
     for k in range(reps):
         for i in range(n):
@@ -317,6 +335,7 @@ def grate(id_: str, x: int, y: int, w: int, h: int, z: int = 4, bar: int = 30, g
 
 
 def wobble(sel: str, t: float, dur: float, amp: float = 3) -> str:
+    t = _t(t)
     return (f'tl.to("{sel}", {{ keyframes: [{{ rotation: -{amp} }}, {{ rotation: {amp} }}, {{ rotation: -{amp} }}, {{ rotation: {amp} }}, {{ rotation: 0 }}], '
             f'duration: {dur}, transformOrigin: "50% 100%" }}, {t});\n')
 
@@ -459,7 +478,8 @@ def index(cues: list) -> str:
               f'data-duration="{TOTAL}" data-track-index="2" data-track-kind="graphics" data-width="{W}" data-height="{H}" style="z-index:5"></div>\n'
               f'      <div id="captions" data-composition-id="captions" data-composition-src="compositions/captions.html" data-start="0" '
               f'data-duration="{TOTAL}" data-track-index="3" data-track-kind="captions" data-width="{W}" data-height="{H}" style="z-index:6"></div>\n')
-    audio = f'      <audio id="vo" class="clip" src="assets/vo/voice.wav" data-start="0" data-duration="{TOTAL}" data-track-index="4" data-volume="1"></audio>\n'
+    vo_len = TIMING["total"]
+    audio = f'      <audio id="vo" class="clip" src="assets/vo/voice.wav" data-start="0" data-duration="{vo_len}" data-track-index="4" data-volume="1"></audio>\n'
     lane_end: list = []
     for k, (f, t, v) in enumerate(sorted(cues, key=lambda c: c[1])):
         d = min(sound_length(f), round(TOTAL - t, 3))
